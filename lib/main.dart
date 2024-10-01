@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:navigasi_flutter_xir3/views/movie_view.dart';
 import './views/home_view.dart';
 import './views/login_view.dart';
 import './views/profile_view.dart';
@@ -14,15 +15,12 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      initialRoute:'/',
-      routes:{
-        '/':(context)=>HomeView(),
-        '/login':(context)=>LoginView(),
-        '/transaksi':(context)=>TransaksiView(),
-        '/profile':(context)=>ProfileView(),
-      }
-    );
+    return MaterialApp(initialRoute: '/', routes: {
+      '/': (context) => HomeView(),
+      '/login': (context) => LoginView(),
+      '/transaksi': (context) => TransaksiView(),
+      '/profile': (context) => ProfileView(),
+      '/movie': (context) => MovieView(),
+    });
   }
 }
-

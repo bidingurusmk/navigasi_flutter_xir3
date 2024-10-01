@@ -16,7 +16,7 @@ class TransaksiView extends StatelessWidget {
           Text("Harga : ${arg[0]["harga"]}"),
         ],
       ),
-      bottomNavigationBar: BottomNav(2),
+      bottomNavigationBar: BottomNav(3),
     );
   }
 }
