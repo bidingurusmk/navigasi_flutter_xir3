@@ -13,10 +13,29 @@ class MovieView extends StatefulWidget {
 
 class _MovieViewState extends State<MovieView> {
   MovieController movie = MovieController();
-
+  TextEditingController titleInput = TextEditingController();
+  TextEditingController gambarInput = TextEditingController();
   ModalWidget modal = ModalWidget();
 
   List<String> listAct = ["Ubah", "Hapus"];
+  List<Movie>? film;
+  getFilm() {
+    setState(() {
+      film = movie.movie;
+    });
+  }
+
+  addFilm(data) {
+    film!.add(data);
+    getFilm();
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getFilm();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,53 +52,67 @@ class _MovieViewState extends State<MovieView> {
               icon: Icon(Icons.add_sharp))
         ],
       ),
-      body: ListView.builder(
-          padding: EdgeInsets.all(12),
-          itemCount: movie.movie.length,
-          itemBuilder: (context, index) {
-            return Card(
-                child: ListTile(
-              leading: Image(
-                image: AssetImage(movie.movie[index].posterPath),
-              ),
-              title: Text(movie.movie[index].title),
-              trailing: PopupMenuButton<String>(
-                icon: const Icon(
-                  Icons.more_vert,
-                  color: Color.fromARGB(255, 0, 0, 0),
-                  size: 30.0,
-                ),
-                // onSelected: choiceAction,
-                itemBuilder: (BuildContext context) {
-                  return listAct.map((String choice) {
-                    return PopupMenuItem<String>(
-                      value: choice,
-                      child: Text(choice),
-                      onTap: () {
-                        modal.showFullModal(context, Text("hello"));
-                      },
-                    );
-                  }).toList();
-                },
-              ),
-            ));
-          }),
+      body: film != null
+          ? ListView.builder(
+              padding: EdgeInsets.all(12),
+              itemCount: movie.movie.length,
+              itemBuilder: (context, index) {
+                return Card(
+                    child: ListTile(
+                  leading: Image(
+                    image: AssetImage(movie.movie[index].posterPath),
+                  ),
+                  title: Text(movie.movie[index].title),
+                  trailing: PopupMenuButton<String>(
+                    icon: const Icon(
+                      Icons.more_vert,
+                      color: Color.fromARGB(255, 0, 0, 0),
+                      size: 30.0,
+                    ),
+                    // onSelected: choiceAction,
+                    itemBuilder: (BuildContext context) {
+                      return listAct.map((String choice) {
+                        return PopupMenuItem<String>(
+                          value: choice,
+                          child: Text(choice),
+                          onTap: () {
+                            modal.showFullModal(context, Text("hello"));
+                          },
+                        );
+                      }).toList();
+                    },
+                  ),
+                ));
+              })
+          : Text("Data Kosong"),
       bottomNavigationBar: BottomNav(2),
     );
   }
-}
 
-Widget fromTambah(context) {
-  return Column(
-    children: [
-      Text("Tambah Data"),
-      TextField(
-        decoration: InputDecoration(label: Text("Title")),
-      ),
-      TextField(
-        decoration: InputDecoration(label: Text("Gambar")),
-      ),
-      ElevatedButton(onPressed: () {}, child: Text("Simpan"))
-    ],
-  );
+  Widget fromTambah(context) {
+    return Column(
+      children: [
+        Text("Tambah Data"),
+        TextField(
+          controller: titleInput,
+          decoration: InputDecoration(label: Text("Title")),
+        ),
+        TextField(
+          controller: gambarInput,
+          decoration: InputDecoration(label: Text("Gambar")),
+        ),
+        ElevatedButton(
+            onPressed: () {
+              Movie data = Movie(
+                id: 1,
+                title: titleInput.text,
+                posterPath: gambarInput.text,
+              );
+              addFilm(data);
+              Navigator.pop(context);
+            },
+            child: Text("Simpan"))
+      ],
+    );
+  }
 }
