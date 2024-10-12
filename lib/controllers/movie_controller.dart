@@ -9,14 +9,10 @@ class MovieController {
       posterPath: 'assets/img1.jpg',
     ),
     Movie(
-      id: 1,
+      id: 2,
       title: "Superman come back",
       voteAverage: 4,
       posterPath: 'assets/img2.jpg',
     )
   ];
-  addData() {
-    Movie data = Movie(id: 3, title: "ok", posterPath: "assets/img3.jpg");
-    this.movie.add(data);
-  }
 }

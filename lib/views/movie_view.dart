@@ -15,10 +15,13 @@ class _MovieViewState extends State<MovieView> {
   MovieController movie = MovieController();
   TextEditingController titleInput = TextEditingController();
   TextEditingController gambarInput = TextEditingController();
+  TextEditingController voteAverage = TextEditingController();
+  final formKey = GlobalKey<FormState>();
   ModalWidget modal = ModalWidget();
 
   List<String> listAct = ["Ubah", "Hapus"];
   List<Movie>? film;
+  int? film_id;
   getFilm() {
     setState(() {
       film = movie.movie;
@@ -47,7 +50,13 @@ class _MovieViewState extends State<MovieView> {
         actions: [
           IconButton(
               onPressed: () {
-                modal.showFullModal(context, fromTambah(context));
+                setState(() {
+                  film_id = null;
+                });
+                titleInput.text = '';
+                gambarInput.text = '';
+                voteAverage.text = '';
+                modal.showFullModal(context, fromTambah(null));
               },
               icon: Icon(Icons.add_sharp))
         ],
@@ -55,14 +64,16 @@ class _MovieViewState extends State<MovieView> {
       body: film != null
           ? ListView.builder(
               padding: EdgeInsets.all(12),
-              itemCount: movie.movie.length,
+              itemCount: film!.length,
               itemBuilder: (context, index) {
                 return Card(
                     child: ListTile(
                   leading: Image(
-                    image: AssetImage(movie.movie[index].posterPath),
+                    image: AssetImage(film![index].posterPath),
                   ),
-                  title: Text(movie.movie[index].title),
+                  title: Text(film![index].title +
+                      " " +
+                      film![index].voteAverage.toString()),
                   trailing: PopupMenuButton<String>(
                     icon: const Icon(
                       Icons.more_vert,
@@ -76,7 +87,21 @@ class _MovieViewState extends State<MovieView> {
                           value: choice,
                           child: Text(choice),
                           onTap: () {
-                            modal.showFullModal(context, Text("hello"));
+                            if (choice == "Ubah") {
+                              setState(() {
+                                film_id = film![index].id;
+                              });
+
+                              titleInput.text = film![index].title;
+                              gambarInput.text = film![index].posterPath;
+                              voteAverage.text =
+                                  film![index].voteAverage.toString();
+                              modal.showFullModal(context, fromTambah(index));
+                            } else if (choice == "Hapus") {
+                              film!.removeWhere(
+                                  (item) => item.id == film![index].id);
+                              getFilm();
+                            }
                           },
                         );
                       }).toList();
@@ -89,30 +114,70 @@ class _MovieViewState extends State<MovieView> {
     );
   }
 
-  Widget fromTambah(context) {
-    return Column(
-      children: [
-        Text("Tambah Data"),
-        TextField(
-          controller: titleInput,
-          decoration: InputDecoration(label: Text("Title")),
-        ),
-        TextField(
-          controller: gambarInput,
-          decoration: InputDecoration(label: Text("Gambar")),
-        ),
-        ElevatedButton(
-            onPressed: () {
-              Movie data = Movie(
-                id: 1,
-                title: titleInput.text,
-                posterPath: gambarInput.text,
-              );
-              addFilm(data);
-              Navigator.pop(context);
+  Widget fromTambah(index) {
+    return Form(
+      key: formKey,
+      child: Column(
+        children: [
+          Text("Tambah Data"),
+          TextFormField(
+            controller: titleInput,
+            decoration: InputDecoration(label: Text("Title")),
+            validator: (value) {
+              if (value!.isEmpty) {
+                return 'harus diisi';
+              } else {
+                return null;
+              }
             },
-            child: Text("Simpan"))
-      ],
+          ),
+          TextFormField(
+            controller: gambarInput,
+            decoration: InputDecoration(label: Text("Gambar")),
+            validator: (value) {
+              if (value!.isEmpty) {
+                return 'harus diisi';
+              } else {
+                return null;
+              }
+            },
+          ),
+          TextFormField(
+            controller: voteAverage,
+            decoration: InputDecoration(label: Text("VoteAverage")),
+            validator: (value) {
+              if (value!.isEmpty) {
+                return 'harus diisi';
+              } else {
+                return null;
+              }
+            },
+          ),
+          ElevatedButton(
+              onPressed: () {
+                if (formKey.currentState!.validate()) {
+                  if (index != null) {
+                    film![index].id = film_id!;
+                    film![index].title = titleInput.text;
+                    film![index].posterPath = gambarInput.text;
+                    film![index].voteAverage = double.parse(voteAverage.text);
+                    getFilm();
+                  } else {
+                    film_id = film!.length + 1;
+                    Movie data = Movie(
+                      id: film_id!,
+                      title: titleInput.text,
+                      posterPath: gambarInput.text,
+                      voteAverage: double.parse(voteAverage.text),
+                    );
+                    addFilm(data);
+                  }
+                  Navigator.pop(context);
+                }
+              },
+              child: Text("Simpan"))
+        ],
+      ),
     );
   }
 }
